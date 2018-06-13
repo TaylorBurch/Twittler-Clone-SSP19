@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="jquery.js"></script>
+    <script src="data_generator.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/1.7.2/moment.min.js"></script>
+    <link rel="stylesheet" href="twittler-styles.css">
+  </head>
+  <body>
+    <script>
+      moment().format();
+      var $body = $('body');
+      $body.html('');
+      var index;
+      var selectedUser = false;
+      var newTweetsInterval;
+      var indexRetainer;
+        
+      var displayTweets = function() {
+        index = streams.home.length - 1;
+        indexRetainer = index;
+        while(index >= 0){
+          appendTweet(index);
+          index -= 1;
+        }
+      }
+
+      var appendTweet = function(index) {
+        var tweet = streams.home[index];
+
+        //moment(tweet.created_at).fromNow(true);
+
+        //var time = setInterval(function(){ 
+          // var t = moment(tweet.created_at).fromNow();
+        //}, 10000); --cant get moment to update on page
+
+
+
+        var $tweet = $("<div class='div-" + tweet.user + "'></div>");
+        $tweet.html("<strong class='" + tweet.user + "'>@" + tweet.user + '</strong>: ' + tweet.message + '<br />' + '<span id="chat-time">' + tweet.created_at + '</span>');
+        $tweet.appendTo($body);
+      }
+
+      var getLatestTweets = function() {
+        newTweetsInterval = setInterval(function() {
+          for (var x = indexRetainer + 1; x < streams.home.length - 1; x++) {
+            appendTweet(x);
+            indexRetainer = x;
+          }
+        }, 1000);
+      };
+
+      var showTimeline = function(user1, user2, user3) {
+        if (selectedUser == false) {
+          $(user1).remove();
+          $(user2).remove();
+          $(user3).remove();
+          clearInterval(newTweetsInterval);
+          var $button = $("<div class='back'></div>");
+          $button.html("Return to Twittler Feed");
+          $button.appendTo($body);
+          selectedUser = true;
+        }
+      }
+
+      function tweet() {
+        var message = document.forms["inputTweet"]["formInput"].value;
+        var yourTweet = writeTweet(message);
+        addTweet(yourTweet);
+        appendTweet(streams.home.length);
+      }
+
+      $(document).ready(function() {
+        displayTweets();
+        getLatestTweets();
+      }).on('click', ".shawndrost", function() {
+        showTimeline(".div-sharksforcheap", ".div-mracus", ".div-douglascalhoun");
+      }).on('click', ".sharksforcheap", function() {
+        showTimeline(".div-shawndrost", ".div-mracus", ".div-douglascalhoun");
+      }).on('click', ".mracus", function() {
+        showTimeline(".div-sharksforcheap", ".div-shawndrost", ".div-douglascalhoun");  
+      }).on('click', ".douglascalhoun", function() {
+        showTimeline(".div-sharksforcheap", ".div-mracus", ".div-shawndrost");   
+      }).on('click', ".back", function() {
+        $("div").remove();
+        selectedUser = false;
+        displayTweets();
+        getLatestTweets();
+      });
+    </script>
+    <div class='nav'> 
+      <h1>Twittler</h1>
+      <h5>User: Visitor</h5>
+      <span>Tweet it!</span>
+      <form name='inputTweet' onSubmit="return tweet()" method="post">
+        Tweet: <input type="text" name="formInput">
+        <input type="submit" value="Tweet" onclick='tweet()'>
+      </form>
+    </div>
+  </body>
+</html>
